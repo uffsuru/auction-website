@@ -4,3 +4,4 @@ python-dotenv
 mysql-connector-python
 eventlet
 whitenoise
+gunicorn

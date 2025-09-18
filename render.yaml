@@ -11,6 +11,12 @@ services:
     env: python
     plan: free # Use a paid plan for better performance
     
+    # Add a persistent disk for file uploads
+    disks:
+      - name: auction-uploads
+        mountPath: /var/data/uploads
+        sizeGB: 1
+
     # Command to install dependencies
     buildCommand: "pip install -r requirements.txt"
     

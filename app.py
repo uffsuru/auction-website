@@ -21,6 +21,15 @@ app.secret_key = os.environ.get('SECRET_KEY', 'a-default-secret-key-for-dev-only
 from whitenoise import WhiteNoise
 app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/')
 
+# Define the path for file uploads. In production, this points to a persistent disk.
+# In development, it points to a local folder inside 'static'.
+if os.environ.get('RENDER') == 'true':
+    UPLOAD_FOLDER = '/var/data/uploads'
+    # In production, also serve uploaded files from the persistent disk
+    app.wsgi_app.add_files(UPLOAD_FOLDER, prefix='uploads/')
+else:
+    UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+
 # --- MySQL Configuration ---
 # Reads credentials from a .env file for local development.
 db_config = {
@@ -556,13 +565,12 @@ def create_auction():
         if file and file.filename:
             ext = file.filename.rsplit('.', 1)[-1].lower()
             if ext in allowed_exts:
-                upload_folder = os.path.join(app.root_path, 'static', 'uploads')
-                os.makedirs(upload_folder, exist_ok=True)
+                os.makedirs(UPLOAD_FOLDER, exist_ok=True)
                 filename = secure_filename(f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}")
-                file_path = os.path.join(upload_folder, filename)
+                file_path = os.path.join(UPLOAD_FOLDER, filename)
                 file.save(file_path)
-                # Store a relative path for use with url_for('static', ...)
-                image_url = os.path.join('uploads', filename).replace('\\', '/')
+                # Store a direct URL path for the uploaded file
+                image_url = f"/uploads/{filename}"
             else:
                 return render_template('create-auction.html', error='Invalid file type. Allowed: jpg, png, gif, pdf,')
         try:
@@ -641,13 +649,12 @@ def edit_auction(auction_id):
             allowed_exts = {'jpg', 'jpeg', 'png', 'gif', 'pdf', 'webp', 'bmp', 'tiff', 'svg'}
             ext = file.filename.rsplit('.', 1)[-1].lower()
             if ext in allowed_exts:
-                upload_folder = os.path.join(app.root_path, 'static', 'uploads')
-                os.makedirs(upload_folder, exist_ok=True)
+                os.makedirs(UPLOAD_FOLDER, exist_ok=True)
                 filename = secure_filename(f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}")
-                file_path = os.path.join(upload_folder, filename)
+                file_path = os.path.join(UPLOAD_FOLDER, filename)
                 file.save(file_path)
-                # Store a relative path for use with url_for('static', ...)
-                image_url = os.path.join('uploads', filename).replace('\\', '/')
+                # Store a direct URL path for the uploaded file
+                image_url = f"/uploads/{filename}"
 
         c.execute('''UPDATE auctions SET title = %s, description = %s, end_time = %s, category = %s, history_link = %s, image_url = %s WHERE id = %s''', (title, description, end_time, category, history_link, image_url, auction_id))
         conn.commit()

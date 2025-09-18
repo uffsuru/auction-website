@@ -223,7 +223,11 @@
                 {% for auction in auctions %}
                 <div class="auction-card" onclick="window.location.href='{{ url_for('auction_detail', auction_id=auction.id) }}'">
                     <div class="auction-image">
-                        {% if auction.image_url and 'uploads' in auction.image_url %}
+                        {% if auction.image_url and auction.image_url.startswith('/uploads/') %}
+                            {# Production path for persistent disk uploads #}
+                            <img src="{{ auction.image_url }}" alt="{{ auction.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% elif auction.image_url and 'uploads' in auction.image_url %}
+                            {# Development/legacy path for local static uploads #}
                             <img src="{{ url_for('static', filename=auction.image_url) }}" alt="{{ auction.title }}" style="width: 100%; height: 100%; object-fit: cover;">
                         {% elif auction.image_url %}
                             {# This handles the emoji from sample data #}
