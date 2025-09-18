@@ -908,7 +908,7 @@ def admin_orders():
 def update_order_status(order_id):
     new_status = request.form.get('status')
     conn = get_db_connection()
-    c = conn.cursor(dictionary=_True)
+    c = conn.cursor(dictionary=True)
     # Get user_id for notification
     c.execute("SELECT user_id FROM orders WHERE id = %s", (order_id,))
     order = c.fetchone()
