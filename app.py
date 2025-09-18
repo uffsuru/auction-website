@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-from flask_socketio import SocketIO, join_room
+# from flask_socketio import SocketIO, join_room # Vercel does not support WebSockets
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from datetime import datetime, timedelta
@@ -14,7 +14,9 @@ import sys
 load_dotenv()
 
 app = Flask(__name__)
-socketio = SocketIO(app, async_mode='eventlet')
+# Vercel is a serverless environment and does not support the persistent connections
+# required by Flask-SocketIO. All real-time features will be disabled.
+# socketio = SocketIO(app, async_mode='eventlet')
 app.secret_key = os.environ.get('SECRET_KEY', 'a-default-secret-key-for-dev-only')
 
 # Serve static files
@@ -138,22 +140,25 @@ def create_notification(cursor, user_id, message, link):
         'created_at': created_at.isoformat(),
         'link': link
     }
-    socketio.emit('new_notification', notification_data, room=str(user_id))
+    # Real-time notifications are disabled for Vercel deployment.
+    # socketio.emit('new_notification', notification_data, room=str(user_id))
 
-@socketio.on('connect')
-def handle_connect():
-    if 'user_id' in session:
-        join_room(str(session['user_id']))
+# @socketio.on('connect')
+# def handle_connect():
+#     if 'user_id' in session:
+#         join_room(str(session['user_id']))
 
-@socketio.on('join')
-def handle_join(data):
-    if 'user_id' in session and str(session['user_id']) == data['room']:
-        join_room(data['room'])
+# @socketio.on('join')
+# def handle_join(data):
+#     if 'user_id' in session and str(session['user_id']) == data['room']:
+#         join_room(data['room'])
 
 # --- Add get_time_left helper and register as Jinja2 global ---
 def get_time_left(end_time_str):
     """Calculate time left for an auction with more precision."""
     try:
+        if end_time_str is None:
+            return "Unknown"
         if isinstance(end_time_str, str):
             # Handles ISO format strings from JSON/DB
             end_time = datetime.fromisoformat(end_time_str)
@@ -487,8 +492,8 @@ def place_bid():
             'user_name': session['user_name'], # The name of the user who just bid
             'bid_time': 'Just now'
         }
-        # Broadcast to all clients; the client-side JS will filter by auction ID.
-        socketio.emit('new_bid', bid_data)
+        # Real-time bid updates are disabled for Vercel deployment.
+        # socketio.emit('new_bid', bid_data)
 
         return jsonify({'success': True, 'message': 'Bid placed successfully'})
 
@@ -915,7 +920,8 @@ def update_order_status(order_id):
     c.close()
     conn.commit()
     conn.close()
-    socketio.emit('status_update', {'order_id': order_id, 'status': new_status})
+    # Real-time status updates are disabled for Vercel deployment.
+    # socketio.emit('status_update', {'order_id': order_id, 'status': new_status})
     return redirect(url_for('admin_orders'))
 
 @app.route('/api/notifications/mark-read', methods=['POST'])
@@ -970,5 +976,5 @@ if __name__ == '__main__':
     else:
         print("🚀 Starting Flask development server...")
         # Note: In development, run `python app.py init` once to set up the database.
-        # The server no longer does this automatically on every start.
-        socketio.run(app, host='127.0.0.1', port=5000, debug=True)
+        # The server no longer does this automatically on every start. For Vercel, this block is not used.
+        app.run(host='127.0.0.1', port=5000, debug=True)
