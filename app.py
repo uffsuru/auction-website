@@ -917,8 +917,8 @@ def update_order_status(order_id):
     if order:
         create_notification(c, order['user_id'], f"Your order #{order_id} has been updated to {new_status}.", f"/dashboard")
 
-    c.close()
     conn.commit()
+    c.close()
     conn.close()
     # Real-time status updates are disabled for Vercel deployment.
     # socketio.emit('status_update', {'order_id': order_id, 'status': new_status})
