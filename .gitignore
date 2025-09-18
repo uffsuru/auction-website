@@ -1,0 +1,10 @@
+# Python
+venv/
+*.pyc
+__pycache__/
+
+# Environment variables
+.env
+
+# Uploaded files (if they are not meant to be in the repo)
+static/uploads/

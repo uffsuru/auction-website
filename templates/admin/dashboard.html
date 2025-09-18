@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<h2>Dashboard Overview</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+    <div style="background: #e3f2fd; padding: 1.5rem; border-radius: 8px; text-align: center;">
+        <h3 style="font-size: 2.5rem; color: #1e88e5;">{{ user_count }}</h3>
+        <p style="font-weight: 600;">Total Users</p>
+    </div>
+    <div style="background: #e8f5e9; padding: 1.5rem; border-radius: 8px; text-align: center;">
+        <h3 style="font-size: 2.5rem; color: #43a047;">{{ auction_count }}</h3>
+        <p style="font-weight: 600;">Total Auctions</p>
+    </div>
+    <div style="background: #fff3e0; padding: 1.5rem; border-radius: 8px; text-align: center;">
+        <h3 style="font-size: 2.5rem; color: #fb8c00;">{{ order_count }}</h3>
+        <p style="font-weight: 600;">Total Orders</p>
+    </div>
+</div>
+{% endblock %}

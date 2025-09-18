@@ -1,0 +1,43 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<h2>Manage Users</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Registered</th>
+            <th>Verified</th>
+            <th>Admin</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</td>
+            <td>{{ 'Yes' if user.email_verified else 'No' }}</td>
+            <td><strong>{{ 'Yes' if user.is_admin else 'No' }}</strong></td>
+            <td>
+                {% if user.id != session.user_id %}
+                    <form action="{{ url_for('toggle_admin_status', user_id=user.id) }}" method="post">
+                        {% if user.is_admin %}
+                            <button type="submit" class="btn btn-sm" style="background: #f39c12; color: white; padding: 5px 10px; font-size: 0.8rem; border-radius: 5px;">Demote</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-sm" style="background: #28a745; color: white; padding: 5px 10px; font-size: 0.8rem; border-radius: 5px;">Promote</button>
+                        {% endif %}
+                    </form>
+                {% else %}
+                    (You)
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

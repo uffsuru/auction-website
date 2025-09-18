@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AuctionHub{% endblock %}
+
+{% block content %}
+
+<div class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
+    <div class="dashboard-container">
+        <div class="dashboard-tabs">
+            <button class="tab-link active" data-tab="my-bids">My Bids</button>
+            <button class="tab-link" data-tab="my-auctions">My Auctions</button>
+            <button class="tab-link" data-tab="my-orders">My Orders</button>
+        </div>
+        
+        <div class="tab-content" id="my-orders">
+            <h2>My Orders</h2>
+            <div class="order-list">
+                {% if my_orders %}
+                    {% for order in my_orders %}
+                    <div class="order-card {% if order.order_status == 'Cancelled' %}order-card-cancelled{% endif %}" id="order-{{ order.id }}">
+                        <div class="order-card-header">
+                            <span><strong>Order ID:</strong> #{{ order.id }}</span>
+                            <span><strong>Ordered on:</strong> {{ order.created_at.strftime('%Y-%m-%d') if order.created_at else 'N/A' }}</span>
+                        </div>
+                        <div class="order-card-body">
+                            <div class="order-item-image">
+                                {% if order.image_url and 'uploads' in order.image_url %}
+                                    <img src="{{ url_for('static', filename=order.image_url) }}" alt="{{ order.title }}">
+                                {% else %}
+                                    <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="{{ order.title }}">
+                                {% endif %}
+                            </div>
+                            <div class="order-item-details">
+                                <h4><a href="{{ url_for('auction_detail', auction_id=order.auction_id) }}">{{ order.title }}</a></h4>
+                                {% if order.order_status == 'Cancelled' %}
+                                    <p style="color: #e74c3c; font-weight: bold;">Order Cancelled</p>
+                                {% else %}
+                                    <p>Shipping to: {{ order.address }}</p>
+                                    <p style="color: #28a745; font-weight: 600; margin-top: 0.5rem;">
+                                        <span style="font-size: 1.1em;">🚚</span> Expected Delivery: {{ get_delivery_date(order.created_at) if order.created_at else 'N/A' }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                            <div class="order-item-actions">
+                                <button class="btn btn-secondary help-btn" data-order-id="{{ order.id }}">Need Help?</button>
+                            </div>
+                        </div>
+                        {% if order.order_status != 'Cancelled' %}
+                        <div class="status-tracker">
+                            <div class="status-step active">
+                                <div class="status-dot"></div>
+                                <div class="status-label">Ordered</div>
+                            </div>
+                            <div class="status-line {% if order.order_status in ['Picked', 'Shipped', 'Delivered'] %}active{% endif %}"></div>
+                            <div class="status-step {% if order.order_status in ['Picked', 'Shipped', 'Delivered'] %}active{% endif %}">
+                                <div class="status-dot"></div>
+                                <div class="status-label">Picked</div>
+                            </div>
+                            <div class="status-line {% if order.order_status in ['Shipped', 'Delivered'] %}active{% endif %}"></div>
+                            <div class="status-step {% if order.order_status in ['Shipped', 'Delivered'] %}active{% endif %}">
+                                <div class="status-dot"></div>
+                                <div class="status-label">Shipped</div>
+                            </div>
+                            <div class="status-line {% if order.order_status == 'Delivered' %}active{% endif %}"></div>
+                            <div class="status-step {% if order.order_status == 'Delivered' %}active{% endif %}">
+                                <div class="status-dot"></div>
+                                <div class="status-label">Delivered</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <h3>No orders yet</h3>
+                        <p>Win an auction to see your orders here.</p>
+                        <a href="{{ url_for('index', _anchor='auctions') }}" class="btn btn-primary">Find Auctions</a>
+                    </div>
+                {% endif %}
+            </div>
+            <!-- Help Modal (moved outside the loop) -->
+            <div id="orderHelpModal" class="modal">
+                <div class="modal-content" style="max-width:400px;">
+                    <span class="close" id="closeHelpModal">&times;</span>
+                    <h2>Order Help</h2>
+                    <p>If you need help with your order, please contact our support team at <a href="mailto:support@auctionhub.com">support@auctionhub.com</a> and mention your Order ID.<br><br>
+                    <strong>Order ID:</strong> <span id="helpOrderId"></span></p>
+                    <hr>
+                    <h4>Refund & Cancellation Policy</h4>
+                    <p>Orders can be cancelled by an admin. If you wish to cancel an order, please contact support. Refunds are processed within 5-7 business days for cancelled orders.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content active" id="my-bids">
+            <h2>My Bids</h2>
+            <div class="bid-list">
+                {% if my_bids %}
+                    {% for bid in my_bids %}
+                    <div class="bid-item" style="cursor: pointer;" onclick="window.location.href='{{ url_for('auction_detail', auction_id=bid.id) }}'">
+                        <div>
+                            <h3>{{ bid.title }}</h3>
+                            <p><strong>Your Bid:</strong> ₹{{ "%.2f"|format(bid.amount) }} | <strong>Current Bid:</strong> ₹{{ "%.2f"|format(bid.current_price) }}</p>
+                            <p><strong>Ends:</strong> {{ get_time_left(bid.end_time) }}</p>
+                        </div>
+                        <div class="bid-status">
+                            {% if get_time_left(bid.end_time) == 'Ended' %}
+                                {% if bid.amount == bid.current_price %}
+                                    {% if bid.is_ordered %}
+                                        <span class="btn btn-sm" style="background:#ccc; color:#fff; cursor:default;">Ordered</span>
+                                    {% else %}
+                                        <a href="{{ url_for('order', auction_id=bid.id) }}" class="btn btn-sm btn-success" onclick="event.stopPropagation();">Pay Now</a>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="btn btn-sm" style="background:#e74c3c; color:#fff; cursor:default;">Outbid</span>
+                                {% endif %}
+                            {% else %}
+                                {% if bid.amount == bid.current_price %}
+                                    <span class="btn btn-sm" style="background:#28a745; color:#fff; cursor:default;">Winning</span>
+                                {% else %}
+                                    <span class="btn btn-sm" style="background:#f39c12; color:#fff; cursor:default;">Losing</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <h3>You haven't placed any bids yet</h3>
+                        <p>Find an item you like and place your first bid!</p>
+                        <a href="{{ url_for('index', _anchor='auctions') }}" class="btn btn-primary">Find Auctions</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="tab-content" id="my-auctions">
+            <h2>My Auctions</h2>
+            <div class="auction-list">
+                {% if my_auctions %}
+                    {% for auction in my_auctions %}
+                    <div class="auction-item">
+                        <div class="auction-info">
+                            <h3>{{ auction.title }}</h3>
+                            <p><strong>Current Bid:</strong> ₹{{ "%.2f"|format(auction.current_price) }}</p>
+                            <p><strong>Starting Price:</strong> ₹{{ "%.2f"|format(auction.starting_price) }}</p>
+                            <p><strong>Ends:</strong> {{ get_time_left(auction.end_time) }}</p>
+                        </div>
+                        <div class="auction-actions">
+                            <a href="{{ url_for('auction_detail', auction_id=auction.id) }}" class="btn btn-primary">View</a>
+                            {% if get_time_left(auction.end_time) != 'Ended' %}
+                                <a href="{{ url_for('edit_auction', auction_id=auction.id) }}" class="btn btn-secondary" style="margin-left: 0.5rem;">Edit</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <h3>You haven't created any auctions</h3>
+                        <p>List an item to start selling.</p>
+                        <a href="{{ url_for('create_auction') }}" class="btn btn-primary">Create Auction</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
+{% endblock %}

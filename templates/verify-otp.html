@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Verify Email OTP - AuctionHub{% endblock %}
+{% block content %}
+<div class="container" style="max-width:400px; margin:2rem auto; background:#fff; padding:2rem; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.07);">
+    <h2 style="text-align:center; margin-bottom:2rem;">Enter OTP</h2>
+    {% if error %}
+        <div style="color:red; margin-bottom:1rem;">{{ error }}</div>
+    {% endif %}
+    <form method="POST">
+        <div class="form-group" style="margin-bottom:1.5rem;">
+            <label for="otp">OTP sent to your email (demo: check console)</label>
+            <input type="text" id="otp" name="otp" class="form-control" required style="width:100%; padding:0.5rem;">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Verify</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,272 @@
+/* Main container for the dashboard content */
+.dashboard-container {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Tabs styling */
+.dashboard-tabs {
+    display: flex;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 2rem;
+}
+
+/* Individual tab button styling - CORRECTED from .tab-btn to .tab-link */
+.tab-link {
+    background: none;
+    border: none;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px; /* Align with the bottom border */
+}
+
+.tab-link.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+/* Tab content panels */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.tab-content h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.8rem;
+}
+
+/* Generic list styling for bids and auctions */
+.auction-list, .bid-list, .order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Item styling for bids and auctions */
+.auction-item, .bid-item {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auction-item:hover, .bid-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.auction-info h3, .bid-item h3 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.auction-info p, .bid-item p {
+    margin: 0.25rem 0;
+    color: #555;
+}
+
+.bid-status {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Empty state styling */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    border: 2px dashed #e0e0e0;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #777;
+    margin-bottom: 1.5rem;
+}
+
+/* Order Card Styling */
+.order-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+
+.order-card-cancelled {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+}
+
+.order-card-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.order-card-body {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    align-items: center;
+}
+
+.order-item-image {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+}
+
+.order-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    background-color: #eee;
+}
+
+.order-item-details {
+    flex-grow: 1;
+}
+
+.order-item-details h4 {
+    margin: 0 0 0.5rem 0;
+}
+
+.order-item-details h4 a {
+    color: #333;
+    text-decoration: none;
+    font-size: 1.2rem;
+}
+.order-item-details h4 a:hover {
+    color: #667eea;
+}
+
+.order-item-details p {
+    margin: 0.25rem 0;
+    color: #666;
+}
+
+.order-item-actions {
+    flex-shrink: 0;
+}
+
+/* Status Tracker Styling */
+.status-tracker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+}
+
+.status-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    text-align: center;
+}
+
+.status-dot {
+    width: 16px;
+    height: 16px;
+    background-color: #ccc;
+    border-radius: 50%;
+    border: 3px solid #f8f9fa;
+    z-index: 2;
+    transition: background-color 0.4s ease;
+}
+
+.status-label {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #888;
+    transition: color 0.4s ease;
+}
+
+.status-line {
+    flex-grow: 1;
+    height: 4px;
+    background-color: #ccc;
+    margin: 0 -2px; /* Overlap slightly with dots */
+    position: relative;
+    top: -12px; /* Align with center of dots */
+    z-index: 1;
+    transition: background-color 0.4s ease;
+}
+
+/* Active state for tracker */
+.status-step.active .status-dot {
+    background-color: #28a745;
+}
+
+.status-step.active .status-label {
+    color: #333;
+    font-weight: 600;
+}
+
+.status-line.active {
+    background-color: #28a745;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard-tabs {
+        flex-wrap: wrap;
+    }
+    .tab-link {
+        flex-grow: 1;
+        text-align: center;
+    }
+    .auction-item, .bid-item, .order-card-body {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    .bid-status, .order-item-actions {
+        margin-top: 1rem;
+    }
+    .status-tracker {
+        padding: 1rem;
+    }
+    .status-label {
+        font-size: 0.75rem;
+    }
+}

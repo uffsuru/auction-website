@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Hero Section */
+    .hero {
+        text-align: center;
+        padding: 4rem 0;
+        color: white;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        animation: fadeInUp 1s ease;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        animation: fadeInUp 1s ease 0.2s both;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Featured Auctions */
+    .featured-section {
+        background: white;
+        padding: 4rem 0;
+        margin-top: 2rem;
+        border-radius: 30px 30px 0 0;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        color: #333;
+        position: relative;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        width: 100px;
+        height: 4px;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border-radius: 2px;
+    }
+
+    .auction-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .auction-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .auction-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+
+    .auction-image {
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(45deg, #f0f2f5, #e1e8ed);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #667eea;
+    }
+
+    .auction-info {
+        padding: 1.5rem;
+    }
+
+    .auction-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+
+    .auction-description {
+        color: #666;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+    }
+
+    .auction-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .current-bid {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .time-left {
+        color: #e74c3c;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .bid-btn {
+        width: 100%;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .bid-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Help Section */
+    .help-section {
+        background: #f8f9fa;
+        padding: 3rem 0;
+    }
+
+    .help-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .help-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .help-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .help-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2.5rem;
+        }
+
+        .auction-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="hero" id="home">
+    <div class="container">
+        <h1>Welcome to AuctionHub</h1>
+        <p>Discover amazing deals and bid on unique items from around the world</p>
+        <a href="#auctions" class="btn btn-primary">Start Bidding</a>
+    </div>
+</section>
+
+<!-- Featured Auctions -->
+<section class="featured-section" id="auctions">
+    <div class="container">
+        <h2 class="section-title">Featured Auctions</h2>
+        <form method="get" action="{{ url_for('index') }}" style="text-align:center; margin-bottom:2rem;">
+            <label for="category" style="font-weight:600; margin-right:0.5rem;">Filter by Category:</label>
+            <select name="category" id="category" style="padding:0.5rem 1rem; border-radius:8px; border:1px solid #ccc;">
+                <option value="">All</option>
+                <option value="Clothes" {% if request.args.get('category') == 'Clothes' %}selected{% endif %}>Clothes</option>
+                <option value="Electronics" {% if request.args.get('category') == 'Electronics' %}selected{% endif %}>Electronics</option>
+                <option value="Wooden" {% if request.args.get('category') == 'Wooden' %}selected{% endif %}>Wooden</option>
+                <option value="Watches" {% if request.args.get('category') == 'Watches' %}selected{% endif %}>Watches</option>
+                <option value="Collectibles" {% if request.args.get('category') == 'Collectibles' %}selected{% endif %}>Collectibles</option>
+                <option value="Art" {% if request.args.get('category') == 'Art' %}selected{% endif %}>Art</option>
+                <option value="Music" {% if request.args.get('category') == 'Music' %}selected{% endif %}>Music</option>
+                <option value="Fashion" {% if request.args.get('category') == 'Fashion' %}selected{% endif %}>Fashion</option>
+                <option value="Sports" {% if request.args.get('category') == 'Sports' %}selected{% endif %}>Sports</option>
+            </select>
+            <button type="submit" class="btn btn-secondary" style="margin-left:1rem;">Apply</button>
+        </form>
+        <div class="auction-grid" id="auctionGrid">
+            {% if auctions %}
+                {% for auction in auctions %}
+                <div class="auction-card" onclick="window.location.href='{{ url_for('auction_detail', auction_id=auction.id) }}'">
+                    <div class="auction-image">
+                        {% if auction.image_url and 'uploads' in auction.image_url %}
+                            <img src="{{ url_for('static', filename=auction.image_url) }}" alt="{{ auction.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        {% elif auction.image_url %}
+                            {# This handles the emoji from sample data #}
+                            {{ auction.image_url }}
+                        {% else %}
+                            🏷️
+                        {% endif %}
+                    </div>
+                    <div class="auction-info">
+                        <div class="auction-title">{{ auction.title }}</div>
+                        <div class="auction-description">{{ auction.description }}</div>
+                        <div class="auction-stats">
+                            <div class="current-bid">₹{{ "%.2f"|format(auction.current_price) }}</div>
+                            <div class="time-left">{{ get_time_left(auction.end_time) }}</div>
+                        </div>
+                        <button class="bid-btn">View Auction</button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                    {% if request.args.get('category') %}
+                        <p>No auctions found for this category.</p>
+                    {% else %}
+                        <p>No auctions available at the moment. Check back soon!</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Help Section -->
+<section class="help-section" id="help">
+    <div class="container">
+        <h2 class="section-title">How It Works</h2>
+        <div class="help-grid">
+            <div class="help-card">
+                <div class="help-icon"></div>
+                <h3>Contact Details</h3>
+                <p>
+                    <strong>Email:</strong> <a href="mailto:support@auctionhub.com">support@auctionhub.com</a><br>
+                    <strong>Phone:</strong> <a href="tel:+1234567890">+1 234 567 890</a>
+                </p>
+            </div>
+            <div class="help-card">
+                <div class="help-icon">👤</div>
+                <h3>Create Account</h3>
+                <p>Sign up for free and verify your email to start bidding on auctions</p>
+            </div>
+            <div class="help-card">
+                <div class="help-icon">🔍</div>
+                <h3>Browse Auctions</h3>
+                <p>Explore thousands of items across various categories and find what you love</p>
+            </div>
+            <div class="help-card">
+                <div class="help-icon">💰</div>
+                <h3>Place Bids</h3>
+                <p>Bid on items you want and track your auctions in real-time</p>
+            </div>
+            <div class="help-card">
+                <div class="help-icon">🏆</div>
+                <h3>Win & Pay</h3>
+                <p>If you win, complete payment and receive your item with secure shipping</p>
+            </div>
+            <div class="help-card">
+                <div class="help-icon">↩️</div>
+                <h3>Refund & Cancellation</h3>
+                <p>Orders can be cancelled by an admin. If you wish to cancel an order, please contact support. Refunds are processed within 5-7 business days for cancelled orders.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

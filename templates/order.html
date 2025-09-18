@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Order & Payment - AuctionHub{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 500px; margin: 2rem auto; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.07);">
+    <h2 style="text-align:center; margin-bottom: 2rem;">Complete Your Order</h2>
+    {% if error %}
+        <div style="color: red; margin-bottom: 1rem;">{{ error }}</div>
+    {% endif %}
+    <form method="POST" action="">
+        <div class="form-group" style="margin-bottom: 1rem;">
+            <label for="address">Shipping Address</label>
+            <textarea id="address" name="address" class="form-control" required style="width:100%; padding:0.5rem;"></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="payment">Payment Method</label>
+            <select id="payment" name="payment" class="form-control" required style="width:100%; padding:0.5rem;">
+                <option value="cod">Cash on Delivery</option>
+                <option value="card">Credit/Debit Card</option>
+            </select>
+        </div>
+
+        <!-- Credit Card Details Form -->
+        <div id="card-details" style="display: none; border: 1px solid #ddd; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="card_number">Card Number</label>
+                <input type="text" id="card_number" name="card_number" class="form-control" placeholder="1234 5678 1234 5678" style="width:100%; padding:0.5rem;">
+            </div>
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="expiry_date">Expiry Date</label>
+                    <input type="text" id="expiry_date" name="expiry_date" class="form-control" placeholder="MM/YY" style="width:100%; padding:0.5rem;">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="cvc">CVC</label>
+                    <input type="text" id="cvc" name="cvc" class="form-control" placeholder="123" style="width:100%; padding:0.5rem;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="card_name">Name on Card</label>
+                <input type="text" id="card_name" name="card_name" class="form-control" placeholder="Full Name" style="width:100%; padding:0.5rem;">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width:100%; padding:0.7rem; font-size:1.1rem; background:#28a745; color:#fff; border:none; border-radius:8px; font-weight:600;">Place Order & Pay</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethodSelect = document.getElementById('payment');
+    const cardDetailsDiv = document.getElementById('card-details');
+    const cardFields = cardDetailsDiv.querySelectorAll('input');
+
+    paymentMethodSelect.addEventListener('change', function() {
+        if (this.value === 'card') {
+            cardDetailsDiv.style.display = 'block';
+            cardFields.forEach(field => field.required = true);
+        } else {
+            cardDetailsDiv.style.display = 'none';
+            cardFields.forEach(field => field.required = false);
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "admin/base.html" %}
+
+{% block admin_content %}
+<h2>Manage Orders</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Auction</th>
+            <th>Buyer</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Update Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr id="order-{{ order.id }}">
+            <td>#{{ order.id }}</td>
+            <td><a href="{{ url_for('auction_detail', auction_id=order.auction_id) }}" target="_blank">{{ order.auction_title }}</a></td>
+            <td>{{ order.buyer_name }}</td>
+            <td>{{ order.address }}</td>
+            <td class="order-status"><strong>{{ order.order_status }}</strong></td>
+            <td>
+                <form action="{{ url_for('update_order_status', order_id=order.id) }}" method="post" style="display: flex; gap: 0.5rem;">
+                    <select name="status" style="padding: 5px; border-radius: 5px;">
+                        {% for status in statuses %}
+                        <option value="{{ status }}" {% if status == order.order_status %}selected{% endif %}>{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm" style="padding: 5px 10px; font-size: 0.8rem;">Update</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.socket.io/4.5.2/socket.io.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+        socket.on('status_update', function(data) {
+            var orderRow = document.getElementById('order-' + data.order_id);
+            if (orderRow) {
+                var statusCell = orderRow.querySelector('.order-status');
+                statusCell.innerHTML = '<strong>' + data.status + '</strong>';
+            }
+        });
+    });
+</script>
+{% endblock %}

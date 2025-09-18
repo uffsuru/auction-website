@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - AuctionHub{% endblock %}
+
+{% block content %}
+<style>
+    .admin-section {
+        background: #f4f7f6;
+        padding: 2rem 0;
+        min-height: 80vh;
+    }
+    .admin-section h1 {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+    .admin-nav {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    .admin-nav ul {
+        list-style: none;
+    }
+    .admin-nav li a {
+        display: block;
+        padding: 0.75rem 1rem;
+        text-decoration: none;
+        color: #333;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+    .admin-nav li a:hover, .admin-nav li a.active {
+        background: #e9ecef;
+        color: #667eea;
+    }
+    .admin-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    }
+    .admin-content h2 {
+        margin-bottom: 1.5rem;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+    th, td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    th {
+        background: #f8f9fa;
+    }
+</style>
+
+<section class="admin-section">
+    <div class="container">
+        <h1>Admin Panel</h1>
+        <div class="admin-grid">
+            <aside class="admin-nav">
+                <ul>
+                    <li><a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint == 'admin_dashboard' else '' }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('admin_users') }}" class="{{ 'active' if request.endpoint == 'admin_users' else '' }}">Manage Users</a></li>
+                    <li><a href="{{ url_for('admin_auctions') }}" class="{{ 'active' if request.endpoint == 'admin_auctions' else '' }}">Manage Auctions</a></li>
+                    <li><a href="{{ url_for('admin_orders') }}" class="{{ 'active' if request.endpoint == 'admin_orders' else '' }}">Manage Orders</a></li>
+                </ul>
+            </aside>
+            <main class="admin-content">
+                {% block admin_content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+</section>
+{% endblock %}

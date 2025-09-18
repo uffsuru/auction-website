@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}{{ auction.title }} - AuctionHub{% endblock %}
+
+{% block content %}
+<style>
+    .auction-detail-section {
+        background: white;
+        padding: 2rem 0;
+        min-height: 80vh;
+    }
+
+    .auction-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+    }
+
+    .auction-image-large {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-placeholder {
+        width: 100%;
+        height: 400px;
+        background: linear-gradient(45deg, #f0f2f5, #e1e8ed);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 8rem;
+        color: #667eea;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .auction-info-detailed h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+
+    .auction-description {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .price-info {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+
+    .current-price, .starting-price {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .current-price .price {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .starting-price .price {
+        font-size: 1.2rem;
+        color: #666;
+    }
+
+    .time-info {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .time-left {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #e74c3c;
+        background: #fff5f5;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 2px solid #fed7d7;
+    }
+
+    .bid-section {
+        margin-bottom: 2rem;
+    }
+
+    .bid-input-group {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .bid-input-group input {
+        flex: 1;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1.1rem;
+    }
+
+    .bid-input-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+    }
+
+    .login-prompt {
+        text-align: center;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+
+    .login-prompt a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .auction-details {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 15px;
+    }
+
+    .auction-details h3 {
+        margin-bottom: 1rem;
+        color: #333;
+    }
+
+    .auction-details ul {
+        list-style: none;
+    }
+
+    .auction-details li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .bid-history {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 20px;
+    }
+
+    .bid-history h3 {
+        margin-bottom: 1.5rem;
+        color: #333;
+    }
+
+    .bid-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .bid-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .bidder {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .bid-amount {
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .bid-time {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        display: none;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    @media (max-width: 768px) {
+        .auction-detail-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .image-placeholder {
+            height: 300px;
+            font-size: 5rem;
+        }
+        
+        .bid-input-group {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<section class="auction-detail-section">
+    <div class="container">
+        {% if auction %}
+        <div class="auction-detail-grid">
+            <div class="auction-image-large">
+                <div class="image-placeholder">
+                    {% if auction.image_url and 'uploads' in auction.image_url %}
+                        <img src="{{ url_for('static', filename=auction.image_url) }}" alt="{{ auction.title }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;">
+                    {% elif auction.image_url %}
+                        {# This handles the emoji from sample data #}
+                        {{ auction.image_url }}
+                    {% else %}
+                        🏷️
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="auction-info-detailed">
+                <h1>{{ auction.title }}</h1>
+                <p class="auction-description">{{ auction.description }}</p>
+                
+                <div class="alert alert-success" id="successAlert"></div>
+                <div class="alert alert-error" id="errorAlert"></div>
+                
+                <div class="price-info">
+                    <div class="current-price">
+                        <span class="label">Current Bid:</span>
+                        <span class="price" id="currentPrice">₹{{ "%.2f"|format(auction.current_price) }}</span>
+                    </div>
+                    <div class="starting-price">
+                        <span class="label">Starting Price:</span>
+                        <span class="price">₹{{ "%.2f"|format(auction.starting_price) }}</span>
+                    </div>
+                </div>
+                
+                <div class="time-info">
+                    <div class="time-left" id="timeLeft">{{ get_time_left(auction.end_time) }}</div>
+                </div>
+                
+                {% if session.user_id and session.user_id != auction.seller_id %}
+                <div class="bid-section">
+                    <form id="bidForm" data-auction-id="{{ auction.id }}">
+                        <div class="bid-input-group">
+                            <input type="number" id="bidAmount" placeholder="Enter bid amount" min="{{ auction.current_price + 1 }}" step="0.01" required>
+                            <button type="submit" class="btn btn-primary">Place Bid</button>
+                        </div>
+                    </form>
+                </div>
+                {% elif session.user_id and session.user_id == auction.seller_id %}
+                <div class="login-prompt" style="background: #e9ecef; color: #495057;">
+                    <p>This is your auction. You cannot place a bid.</p>
+                </div>
+                {% else %}
+                <div class="login-prompt">
+                    <p>Please <a href="#" id="loginPrompt">login</a> to place a bid</p>
+                </div>
+                {% endif %}
+                
+                <div class="auction-details">
+                    <h3>Auction Details</h3>
+                    <ul>
+                        <li><strong>Category:</strong> {{ auction.category if auction.category else 'General' }}</li>
+                        {% if auction.history_link %}
+                        <li><strong>Item History:</strong> <a href="{{ auction.history_link }}" target="_blank" rel="noopener noreferrer">View Article</a></li>
+                        {% endif %}
+                        <li><strong>Seller:</strong> Verified Seller</li>
+                        <li><strong>Condition:</strong> Excellent</li>
+                        <li><strong>Shipping:</strong> Worldwide</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bid-history">
+            <h3>Bid History</h3>
+            <div class="bid-list" id="bidList">
+                {% if bids %}
+                    {% for bid in bids %}
+                    <div class="bid-item">
+                        <span class="bidder">{{ bid.name }}</span>
+                        <span class="bid-amount">₹{{ "%.2f"|format(bid.amount) }}</span>
+                        <span class="bid-time">{{ bid.bid_time }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <p>No bids yet. Be the first to bid!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 4rem;">
+            <h1>Auction Not Found</h1>
+            <p>The auction you're looking for doesn't exist.</p>
+            <a href="/" class="btn btn-primary">Go Back Home</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<script src="{{ url_for('static', filename='js/auction-details.js') }}"></script>
+{% endblock %}
