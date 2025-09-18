@@ -524,18 +524,18 @@ def create_sample_data():
                   (1, 'Demo Seller', 'demo@example.com', hashed_password, datetime.now().isoformat(), True, False))
         
         sample_auctions = [
-            ("Vintage Rolex Watch", "Authentic vintage Rolex Submariner from 1978. In excellent condition.", 2000, 2500, 
-             (datetime.now() + timedelta(days=2)).isoformat(), 1, "Watches", "⌚", datetime.now().isoformat(), "https://en.wikipedia.org/wiki/Rolex_Submariner"),
-            ("Rare Pokemon Cards Set", "Complete first edition Pokemon card collection", 300, 450, 
-             (datetime.now() + timedelta(days=1)).isoformat(), 1, "Collectibles", "🎮", datetime.now().isoformat(), None),
-            ("Antique Painting", "18th century oil painting by renowned artist", 1000, 1200, 
-             (datetime.now() + timedelta(days=5)).isoformat(), 1, "Art", "🎨", datetime.now().isoformat(), None),
-            ("Classic Guitar", "1960s Martin D-28 acoustic guitar in pristine condition", 600, 800, 
-             (datetime.now() + timedelta(days=3)).isoformat(), 1, "Music", "🎸", datetime.now().isoformat(), None),
-            ("Designer Handbag", "Limited edition Chanel bag, never used", 500, 600, 
-             (datetime.now() + timedelta(days=4)).isoformat(), 1, "Fashion", "👜", datetime.now().isoformat(), None),
-            ("Sports Memorabilia", "Signed baseball by legendary player", 200, 300, 
-             (datetime.now() + timedelta(days=6)).isoformat(), 1, "Sports", "⚾", datetime.now().isoformat(), None)
+            ("Vintage Rolex Watch", "Authentic vintage Rolex Submariner from 1978. In excellent condition.", 2000, 2500,
+             (datetime.now() + timedelta(days=2)).isoformat(), 1, "Watches", "https://via.placeholder.com/400x300.png?text=Rolex", datetime.now().isoformat(), "https://en.wikipedia.org/wiki/Rolex_Submariner"),
+            ("Rare Pokemon Cards Set", "Complete first edition Pokemon card collection", 300, 450,
+             (datetime.now() + timedelta(days=1)).isoformat(), 1, "Collectibles", "https://via.placeholder.com/400x300.png?text=Pokemon+Cards", datetime.now().isoformat(), None),
+            ("Antique Painting", "18th century oil painting by renowned artist", 1000, 1200,
+             (datetime.now() + timedelta(days=5)).isoformat(), 1, "Art", "https://via.placeholder.com/400x300.png?text=Painting", datetime.now().isoformat(), None),
+            ("Classic Guitar", "1960s Martin D-28 acoustic guitar in pristine condition", 600, 800,
+             (datetime.now() + timedelta(days=3)).isoformat(), 1, "Music", "https://via.placeholder.com/400x300.png?text=Guitar", datetime.now().isoformat(), None),
+            ("Designer Handbag", "Limited edition Chanel bag, never used", 500, 600,
+             (datetime.now() + timedelta(days=4)).isoformat(), 1, "Fashion", "https://via.placeholder.com/400x300.png?text=Handbag", datetime.now().isoformat(), None),
+            ("Sports Memorabilia", "Signed baseball by legendary player", 200, 300,
+             (datetime.now() + timedelta(days=6)).isoformat(), 1, "Sports", "https://via.placeholder.com/400x300.png?text=Baseball", datetime.now().isoformat(), None)
         ]
         
         for auction in sample_auctions:
