@@ -21,14 +21,11 @@ app.secret_key = os.environ.get('SECRET_KEY', 'a-default-secret-key-for-dev-only
 from whitenoise import WhiteNoise
 app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/')
 
-# Define the path for file uploads. In production, this points to a persistent disk.
-# In development, it points to a local folder inside 'static'.
-if os.environ.get('RENDER') == 'true':
-    UPLOAD_FOLDER = '/var/data/uploads'
-    # In production, also serve uploaded files from the persistent disk
-    app.wsgi_app.add_files(UPLOAD_FOLDER, prefix='uploads/')
-else:
-    UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+# Define the path for file uploads.
+# For Vercel/development, we use a folder inside 'static'.
+# NOTE: Vercel has an ephemeral filesystem. Uploaded files will be lost on redeployment.
+# For a production application, you should use a dedicated file storage service like AWS S3 or Cloudinary.
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
 
 # --- MySQL Configuration ---
 # Reads credentials from a .env file for local development.
@@ -39,7 +36,14 @@ db_config = {
     'database': os.environ.get('DB_DATABASE', 'auction_db')
 }
 
+# For production environments like Render or Vercel connecting to PlanetScale, enable SSL.
+if os.environ.get('RENDER') == 'true' or os.environ.get('VERCEL') == '1':
+    print("ℹ️  Production environment detected. Enabling SSL for MySQL connection.")
+    db_config['ssl_verify_cert'] = True
+    db_config['ssl_disabled'] = False
+
 # --- Database Connection Pool ---
+db_pool = None
 try:
     print("ℹ️  Attempting to create MySQL connection pool...")
     print(f"    Host: {db_config.get('host')}")
@@ -49,7 +53,7 @@ try:
 
     db_pool = mysql.connector.pooling.MySQLConnectionPool(
         pool_name="auction_pool",
-        pool_size=5,  # Reduced pool size for PythonAnywhere's environment
+        pool_size=5,
         **db_config
     )
     print("✅ MySQL Connection Pool created successfully.")
@@ -59,12 +63,12 @@ except mysql.connector.Error as err:
     print(f"MySQL Error Code: {err.errno}")
     print(f"MySQL Error Message: {err.msg}")
     print("-----------------------------------------------------------------")
-    print("👉 COMMON FIXES FOR LOCAL DEVELOPMENT:")
-    print("   1. Is your MySQL server running?")
+    print("👉 COMMON FIXES:")
+    print("   1. Is your MySQL server running (for local dev)?")
     print("   2. Did you create the database? (e.g., CREATE DATABASE auction_db;)")
-    print("   3. Do the 'user' and 'password' in db_config match your MySQL credentials?")
+    print("   3. Do the DB environment variables match your MySQL credentials?")
+    print("   4. If on Render, are the environment variables for the external DB set correctly?")
     print("-----------------------------------------------------------------")
-    db_pool = None
 
 # --- Database Connection Function ---
 def get_db_connection():
@@ -113,7 +117,6 @@ def init_db():
     execute_alter("ALTER TABLE bids ADD INDEX idx_user_bids_sorted (user_id, amount DESC, bid_time DESC)")
     execute_alter("ALTER TABLE bids ADD INDEX idx_user_id (user_id)")
     execute_alter("ALTER TABLE orders ADD INDEX idx_user_id (user_id)")
-    # --- End of Index Addition ---
 
     conn.commit()
     c.close()
@@ -513,7 +516,7 @@ def create_sample_data():
         # Create a default user for sample auctions
         hashed_password = generate_password_hash('demo')
         c.execute('INSERT IGNORE INTO users (id, name, email, password, created_at, email_verified, is_admin) VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                  (1, 'Demo Seller', 'demo@example.com', hashed_password, datetime.now().isoformat(), 1, 0))
+                  (1, 'Demo Seller', 'demo@example.com', hashed_password, datetime.now().isoformat(), True, False))
         
         sample_auctions = [
             ("Vintage Rolex Watch", "Authentic vintage Rolex Submariner from 1978. In excellent condition.", 2000, 2500, 
@@ -570,7 +573,7 @@ def create_auction():
                 file_path = os.path.join(UPLOAD_FOLDER, filename)
                 file.save(file_path)
                 # Store a direct URL path for the uploaded file
-                image_url = f"/uploads/{filename}"
+                image_url = f"uploads/{filename}"
             else:
                 return render_template('create-auction.html', error='Invalid file type. Allowed: jpg, png, gif, pdf,')
         try:
@@ -654,7 +657,7 @@ def edit_auction(auction_id):
                 file_path = os.path.join(UPLOAD_FOLDER, filename)
                 file.save(file_path)
                 # Store a direct URL path for the uploaded file
-                image_url = f"/uploads/{filename}"
+                image_url = f"uploads/{filename}"
 
         c.execute('''UPDATE auctions SET title = %s, description = %s, end_time = %s, category = %s, history_link = %s, image_url = %s WHERE id = %s''', (title, description, end_time, category, history_link, image_url, auction_id))
         conn.commit()
@@ -900,7 +903,7 @@ def admin_orders():
 def update_order_status(order_id):
     new_status = request.form.get('status')
     conn = get_db_connection()
-    c = conn.cursor(dictionary=True)
+    c = conn.cursor(dictionary=_True)
     # Get user_id for notification
     c.execute("SELECT user_id FROM orders WHERE id = %s", (order_id,))
     order = c.fetchone()
